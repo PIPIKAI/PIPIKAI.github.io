@@ -1,0 +1,290 @@
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[obsidian-笔记page]]></title><description><![CDATA[Obsidian digital garden]]></description><link>http://github.com/dylang/node-rss</link><image><url>lib\media\favicon.png</url><title>obsidian-笔记page</title><link/></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Fri, 15 Mar 2024 07:30:35 GMT</lastBuildDate><atom:link href="lib\rss.xml" rel="self" type="application/rss+xml"/><pubDate>Fri, 15 Mar 2024 07:30:33 GMT</pubDate><copyright><![CDATA[zhikai]]></copyright><ttl>60</ttl><dc:creator>zhikai</dc:creator><item><title><![CDATA[地图服务]]></title><description><![CDATA[ 
+ <br>离线加载<br>protected void onCreate(Bundle savedInstanceState) { 
+
+    super.onCreate(savedInstanceState); 
+    setContentView(R.layout.activity_main); 
+    this.findViewById(R.id.mapview); 
+
+    MapView mapView = (MapView) findViewById(R.id.mapview); 
+    mapView.setZoom(9); 
+    mapView.setMinZoomLevel(8); 
+    mapView.setMaxZoomLevel(15); 
+    mapView.setCenter(new LatLng(55.676111, 12.568333)); 
+    mapView.setTileSource(new MBTilesLayer(this, "DK_underlay_1_0_4.mbtiles")); 
+
+} 
+复制<br>因此，您可以做的一件事是将缓慢的new MBTilesLayer(this, "DK_underlay_1_0_4.mbtiles")代码转换为AsyncTask，以便在缓慢加载过程中不会阻止您的UI。这不会减少加载时间，但可以确保未阻止的用户界面。<br><br>本文整理汇总了Java中com.mapbox.mapboxsdk.tileprovider.tilesource.MBTilesLayer类****的典型用法代码示例。如果您正苦于以下问题：Java MBTilesLayer类的具体用法？Java MBTilesLayer怎么用？Java MBTilesLayer使用的例子？那么恭喜您, 这里精选的类代码示例或许可以为您提供帮助。<br>MBTilesLayer类属于com.mapbox.mapboxsdk.tileprovider.tilesource包，在下文中一共展示了MBTilesLayer类的3个代码示例，这些例子默认根据受欢迎程度排序。您可以为喜欢或者感觉有用的代码点赞，您的评价将有助于系统推荐出更棒的Java代码示例。<br><br>▲&nbsp;点赞 3&nbsp;▼<br>import com.mapbox.mapboxsdk.tileprovider.tilesource.MBTilesLayer; //导入依赖的package包/类
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    Intent intent = this.getIntent();
+    String fileName = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+    MapView mapView = new MapView(this);
+    BoundingBox box;
+
+    TileLayer mbTileLayer = new MBTilesLayer(this, fileName);
+    mapView.setTileSource(new ITileLayer[] {
+            mbTileLayer, new WebSourceTileLayer("mapquest",
+            "http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png").setName(
+            "MapQuest Open Aerial")
+            .setAttribution("Tiles courtesy of MapQuest and OpenStreetMap contributors.")
+            .setMinimumZoomLevel(1)
+            .setMaximumZoomLevel(18)
+    });
+
+    box = mbTileLayer.getBoundingBox();
+    mapView.setScrollableAreaLimit(box);
+    mapView.setMinZoomLevel(mapView.getTileProvider().getMinimumZoomLevel());
+    mapView.setMaxZoomLevel(mapView.getTileProvider().getMaximumZoomLevel());
+    mapView.setCenter(mapView.getTileProvider().getCenterCoordinate());
+    mapView.setZoom(0);
+    Log.d("MapboxPlugin", "zoomToBoundingBox " + box.toString());
+
+    setContentView(mapView);
+}
+ 
+复制<br>开发者ID:affinitybridge，项目名称:cordova-mapbox-android-sdk，代码行数:31，代码来源:<a data-tooltip-position="top" aria-label="https://vimsky.com/link.php?source=https%3A%2F%2Fgithub.com%2Faffinitybridge%2Fcordova-mapbox-android-sdk" rel="noopener" class="external-link" href="https://vimsky.com/link.php?source=https%3A%2F%2Fgithub.com%2Faffinitybridge%2Fcordova-mapbox-android-sdk" target="_blank">OfflineMapActivity.java</a><br><br>▲&nbsp;点赞 3&nbsp;▼<br>import com.mapbox.mapboxsdk.tileprovider.tilesource.MBTilesLayer; //导入依赖的package包/类
+public MapTileDownloader(final ITileLayer pTileSource, final MapTileCache pTileCache,
+                         final NetworkAvailabilityCheck pNetworkAvailabilityCheck, final MapView mapView) {
+    super(NUMBER_OF_TILE_DOWNLOAD_THREADS, TILE_DOWNLOAD_MAXIMUM_QUEUE_SIZE);
+    mMapView = mapView;
+    mUseDataConnection = true;
+    if (pTileSource instanceof MBTilesLayer) {
+        mUseDataConnection = false;
+    }
+    mTileCache.set(pTileCache);
+
+    hdpi = AppUtils.isRunningOn2xOrGreaterScreen(mapView.getContext());
+    Log.d(TAG, String.format("Going to use @2x tiles? '%b'", hdpi));
+
+    mNetworkAvailabilityCheck = pNetworkAvailabilityCheck;
+    setTileSource(pTileSource);
+}
+ 
+复制<br>开发者ID:posm，项目名称:OpenMapKitAndroid，代码行数:17，代码来源:<a data-tooltip-position="top" aria-label="https://vimsky.com/link.php?source=https%3A%2F%2Fgithub.com%2Fposm%2FOpenMapKitAndroid" rel="noopener" class="external-link" href="https://vimsky.com/link.php?source=https%3A%2F%2Fgithub.com%2Fposm%2FOpenMapKitAndroid" target="_blank">MapTileDownloader.java</a><br><br>▲&nbsp;点赞 2&nbsp;▼<br>import com.mapbox.mapboxsdk.tileprovider.tilesource.MBTilesLayer; //导入依赖的package包/类
+/**
+ * MapBox provides is "own" MBTiles driver, no need to use rastertheque
+ * @param filePath
+ */
+private void replaceWithMBTiles(final String filePath) {
+    
+    mCurrentLayer = new MBTilesLayer(new File(filePath));
+   	
+       mv.setTileSource(mCurrentLayer);
+       BoundingBox box = mCurrentLayer.getBoundingBox();
+       mv.setScrollableAreaLimit(box);
+       mv.setMinZoomLevel(mv.getTileProvider().getMinimumZoomLevel());
+       mv.setMaxZoomLevel(mv.getTileProvider().getMaximumZoomLevel());
+    currentMap = filePath;
+    
+}
+复制<br><a rel="noopener" class="external-link" href="https://docs.mapbox.com/android/legacy/plugins/guides/offline/" target="_blank">https://docs.mapbox.com/android/legacy/plugins/guides/offline/</a>]]></description><link>笔记\地图服务.html</link><guid isPermaLink="false">笔记/地图服务.md</guid><dc:creator><![CDATA[zhikai]]></dc:creator><pubDate>Fri, 15 Mar 2024 06:49:58 GMT</pubDate></item><item><title><![CDATA[学习大纲（计划）]]></title><description><![CDATA[<a class="tag" href="?query=tag:刘文超" style="background-color: rgb(4, 108, 116); color: white; font-weight: 700; border: none; border-radius: 1em; padding: 0.2em 0.5em;">#刘文超</a> <a class="tag" href="?query=tag:阿里木江" style="background-color: rgb(4, 108, 116); color: white; font-weight: 700; border: none; border-radius: 1em; padding: 0.2em 0.5em;">#阿里木江</a> 
+ <br><br><a href=".?query=tag:刘文超" class="tag" target="_blank" rel="noopener">#刘文超</a> <a href=".?query=tag:阿里木江" class="tag" target="_blank" rel="noopener">#阿里木江</a><br>
+<a class="internal-link" data-href="行测学习.md#资料分析" href="笔记\行测学习.html#资料分析" target="_self" rel="noopener">资料分析</a>  共十节课，平均一节课一个半小时，共20小时 <a data-tooltip-position="top" aria-label="https://www.bilibili.com/video/BV1f4411C7z5/?spm_id_from=333.337.search-card.all.click&amp;vd_source=4b22524a2d923a03c225e7fd17f11463" rel="noopener" class="external-link" href="https://www.bilibili.com/video/BV1f4411C7z5/?spm_id_from=333.337.search-card.all.click&amp;vd_source=4b22524a2d923a03c225e7fd17f11463" target="_blank">视频链接</a><br><a class="internal-link" data-href="行测学习.md#推理判断" href="笔记\行测学习.html#推理判断" target="_self" rel="noopener">推理判断</a>  共十六节课，平均一节课两小时，共50小时 <a data-tooltip-position="top" aria-label="https://www.bilibili.com/video/BV12t4115735/?spm_id_from=333.999.0.0&amp;vd_source=4b22524a2d923a03c225e7fd17f11463" rel="noopener" class="external-link" href="https://www.bilibili.com/video/BV12t4115735/?spm_id_from=333.999.0.0&amp;vd_source=4b22524a2d923a03c225e7fd17f11463" target="_blank">视频链接</a><br><a class="internal-link" data-href="行测学习.md#言语理解" href="笔记\行测学习.html#言语理解" target="_self" rel="noopener">言语理解</a>  共九节课，平均一节课两小时，共20小时 <a data-tooltip-position="top" aria-label="https://www.bilibili.com/video/BV1oA411c7Eh/?spm_id_from=333.337.search-card.all.click&amp;vd_source=4b22524a2d923a03c225e7fd17f11463" rel="noopener" class="external-link" href="https://www.bilibili.com/video/BV1oA411c7Eh/?spm_id_from=333.337.search-card.all.click&amp;vd_source=4b22524a2d923a03c225e7fd17f11463" target="_blank">视频链接</a><br>预计15天看完，平均每天需要看6小时<br><br>考试大纲要求：对各种形式的文字图表等资料的综合理解和分析加工的能力<br><br><br><br>作为对比参照的时期成为基期，而相对于基期的称为现期<br><br>基期与现期增长或减少的绝对量<br>
+增长量 = 现期 - 基期<br><br>增长量与基期的相对变化，即在基期的基础上增长了多大的幅度，<br>
+增长量又称增幅、增速、增长速度、增长幅度等等<br>
+rate 简写 r<br><br>易错考点：<br>
+2017年产值比2016年增长了280% 此时，增长超过了100%，我们一般称为增长了xx倍<br>
+2017年产值比2016年增长了2.8倍<br>
+2017年产值是2016年的3.8倍<br><br><br><br><br><br>和历史同时期比较，比如：2019年9月 同比 2018年9月<br><br>和上一个统计周期相比，<br><br><br>是指某部分在总体中所占的百分比，一般都是百分比形式<br><br>a是b的 n 倍 就是  a/b =n <br><br>总量/个数<br><br>百分点：百分数的单位（常用于和百分数相加减，避免歧义）<br><br>三成表示十分之三，即(30%)<br>
+七成五，表示 75%<br><br>翻一番为原来的两倍，翻N番为原来的倍<br><br>常用于对外贸易时<br>
+顺差=出口 - 进口（出口&gt;进口），<br>
+逆差=进口 - 出口 <br><br>GDP = 第一产业增加值 + 第二产业增加值 + 第三产业增加值<br>
+增加值：GDP<br><br><br>食品支出占个人消费总额的比重<br>
+这个比例越低，反应生活水平越高<br>
+大于60% 贫穷<br>
+50%-60% 温饱<br>
+40%-50% 小康<br>
+30%-40% 相对富裕<br>
+20%-30% 富足<br>
+20%以下 极其富裕<br><br>指国际上通用的、用来衡量一个国家或地区居民收入差距常用指标<br>
+基尼系数介于0-1之间，基尼系数越大，表示不平衡程度越高<br>
+国际上将0.4作为红线，<br>
+低于0.2 绝对平均<br>
+0.2-0.3 比较平均<br>
+0.3-0.4 相对合理<br>
+0.4-0.5 差距有点大<br>
+0.5 差距很大<br><br><br>时间，关键词，结构<br><br>大长段<br>
+时间，关键词，标点（。 ；）<br><br>标题，横纵坐标，单位<br><br>横纵坐标，图例，单位<br>饼状图的图例是按照顺时针生成的<br><br><br>
+估算原则<br>
+任何数字，保留三位，最大的误差有多少
+<br>==**千分之五**==
+复制<br> 所以，保留三位有效数字是上限<br><br>只要估算分母即可<br><br>分子分母同时截位<br><br><br><br><br>乘法一大一小，按照比例增加或者减少<br><br><img alt="Pasted image 20231207203152.png" src="lib\media\pasted-image-20231207203152.png"><br>
+<img alt="Pasted image 20231207203125.png" src="lib\media\pasted-image-20231207203125.png"><br>情况，当遇到求增长量的题目<br>增长量 = 今年量/(1 + r) * r<br>
+当r 为某一个分数时<br>= 今年量/(1 + n) <br>
+NOTE: 当为下降率时，增长量 = 今年量 / （n - 1）
+<br><br>
+<br>直除首位
+<br>变换速度
+<br><br><br><br>
+<br>增长率<a data-href="行测学习#^74d4dd" href="笔记\行测学习.html#^74d4dd" class="internal-link" target="_self" rel="noopener">行测学习 &gt; ^74d4dd</a>
+<br>基期和现其量     
+<br>间隔增长率     
+<br>混合增长率   大小居中，偏向量大   距离和量成反比
+<br>年均增长率   数年份  
+<br>比重
+<br>比重的增加  
+<br>现期倍数
+<br>基期倍数 和基期倍数差不多
+<br>平均数
+<br>平均值增长率 均价增速= 
+<br>
+<br><br><br><br>题型确定：<br>
+这段文字，主要说了什么/主旨是什么/主要介绍了<br><br>理清层次  转折词  调动情绪   对策类题目（重点）<br>
+具体操作：<br>
+划分层次，寻找文段重点<br>
+对比择优，反推化解纠结
+<br>分句类型：背景引入<br>
+<img alt="Pasted image 20231210154033.png" src="lib\media\pasted-image-20231210154033.png"><br>分句类型：举例认证<br>
+<img alt="Pasted image 20231210155019.png" src="lib\media\pasted-image-20231210155019.png"><br>优先选择明确的答案，例如 已知 1+1 != 3  1+1 = 2<br>
+则优先选择 1+1 = 2 这个更加明确的答案<br>分句类型：原因解释<br>
+<img alt="Pasted image 20231210171822.png" src="lib\media\pasted-image-20231210171822.png"><br>
+总体思路：1.有重点，精炼浓缩，同义替换2. 无重点，全面概括，提取共性<br>分句类型：正反论证<br>
+<img alt="Pasted image 20231210174002.png" src="lib\media\pasted-image-20231210174002.png"><br>
+分句类型：观点引援<br>
+标志：引用他人的观点<br><br>
+<br>直接给出对策，直接选对策
+<br>文段通过反面论证给出对策（选择反推出的对策
+<br>文段提出问题，未给出对策
+
+<br>有针对性对策优先选择针对性对策（内容大于形式
+<br>没有针对性对策或对策错误，不靠谱时，选择问题本身的同义替换
+
+
+<br>对策是重点，对策的原因不重要<br>第二讲回顾<br>
+<br>内容大于形式
+<br>主题词可能“老实重复”，也可能“狡猾变形”
+<br>提出观点+反面论证 与提出问题+反面论证
+<br><br>
+<br>概括要点
+
+<br>正确选项：全面概括、提取共性
+<br>错误选项：表述片面、无中生有
+
+
+<br>文段特性，找共同点
+
+<br>包含并列关键词，此外，另外，同时，以及
+<br>文章有层次，排比，时间顺序
+<br>无明显关联词
+
+
+<br><br>转折关系<br>
+原因（因为，所以<br>
+必要关系（只有，才<br>
+并列关系：全面概括，提取共性（还，也，。。<br><br>理论要点：关注文段最后一句话（话题一致，但是不能完全 重复<br><br>
+<br>考察动词，形容词，成语的使用
+<br>结合语境找逻辑线索，不能全凭语感<br>
+合理假设，小心求证
+<br>莫衷一是：意思是不能决定哪个是对的。是,意为对、正确。形容意见分歧,没有一致的看法<br>
+左支右绌：原指弯弓射箭的姿势，左手支持，右手屈曲。指力量不足，应付了这方面，那方面又出了问题<br>
+历久弥新：的观点，<br>
+<img alt="Pasted image 20231214152345.png" src="lib\media\pasted-image-20231214152345.png"><br><br>警惕过于绝对的词语<br>
+<br>细看提问方式
+<br>先看文段还是先看选项，因人而异，
+<br>读文段只知道大概内容即可
+<br><br>三步走战略<br>
+<br>根据选项确认首句（对比排除
+<br>确定捆绑，确定顺序，确定尾句（同时进行
+<br>考虑验证已经锁定的答案（可以不进行
+<br>一、先看首句<br>
+（1） 下定义（是... ,...被称为,....指...<br>
+（2） 提出观点（有人说....,<br>
+（3）背景引入（随着....,<br>
+（4）非首句特征：关联词后部分单独出现，指代词不明确，举例子<br><br><br><br>支持，削弱论证的本质<br>推翻，质疑<br><br><br>]]></description><link>笔记\行测学习.html</link><guid isPermaLink="false">笔记/行测学习.md</guid><dc:creator><![CDATA[zhikai]]></dc:creator><pubDate>Fri, 15 Mar 2024 06:35:44 GMT</pubDate><enclosure url="lib\media\pasted-image-20231207203152.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="lib\media\pasted-image-20231207203152.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[C++ 面试准备和理解]]></title><description><![CDATA[ 
+ <br><br>
+<br>如何区分：
+
+<br>*是指针，const是常量，哪个在前就先叫什么
+<br>比如：  const int * p 先常量后指针就叫常量指针 ，int const *p
+<br>int *const p先指针后常量就叫指针常量
+
+
+<br>各自有什么限制，一句话概括<br>
+1. const 靠近谁，那么谁就是不可变的<br>
+2. 常量指针中，const靠近的是常量，所以常量指针不能改变的是指针所指向的变量的值，<br>
+3. 指针常量中，const靠近的是指针，所以指针常量中不能改变的是指针的地址的值<br>
+易错题：
+<br>int main()
+{
+    char * const str = "apple";
+    * str = "orange"; // Q1 是否正确
+    str = "orange";  // Q2 是否正确
+    cout &lt;&lt; str &lt;&lt; endl;
+    getchar();
+}
+复制<br>
+全部错误 ：原因如下<br>
+Q1:  str是一个指针，指向了"apple",那么str指向的就是字符串的首地址，*str代表的就是首地址的值为 'a' ,但是"apple"是一个字符串常量，所以常量的值不能修改
+Q2: 在该赋值语句中，系统会在常量区一块新的空间写入字符串“orange”并返回地址，由于str  是一个指针常量，指针地址不能改变，所以会报错
+<br><br>delete会调用对象的析构函数<br>
+和new对应free只会释放内存<br>new调用构造函数<br>
+malloc与free是C++/C语言的标准库函数<br>
+new与delete 是C++的运算符<br>
+它们都可用于申请动态内存和释放内存。<br>
+对于非内部数据类型的对象而言，光用malloc/free无法满足动态对象的要求<br>
+由于malloc/free是库函数而不是运算符，不在编译器控制权限之内，不能够把执行构造函数和析构函数的任务强加于malloc/free。<br>
+因此C++语言需要一个能完成动态内存分配和初始化工作的运算符new，以及一个能完成清理与释放内存工作的运算符delete。<br>
+注意new/delete不是库函数。<br><br>delete只会调用一次析构函数，而delete[]会调用每一个成员的析构函数。<br>
+delete与new配套，delete&nbsp;[]与new&nbsp;[]配套<br><br>封装，继承和多态。<br><br>析构函数调用的次序是先派生类的析构后基类的析构，也就是说在基类的的析构调用的时候,派生类的信息已经全部销毁了。定义一个对象时先调用基类的构造函数、然后调用派生类的构造函数；析构的时候恰好相反：先调用派生类的析构函数、然后调用基类的析构函数。<br><br>多态：是对于不同对象接收相同消息时产生不同的动作。C++的多态性具体体现在运行和编译两个方面：在程序运行时的多态性通过继承和虚函数来体现；<br>
+在程序编译时多态性体现在函数和运算符的重载上；<br>虚函数：在基类中冠以关键字&nbsp;virtual&nbsp;的成员函数。&nbsp;它提供了一种接口界面。允许在派生类中对基类的虚函数重新定义。<br>纯虚函数的作用：在基类中为其派生类保留一个函数的名字，以便派生类根据需要对它进行定义。作为接口而存在&nbsp;纯虚函数不具备函数的功能，一般不能直接被调用。<br>从基类继承来的纯虚函数，在派生类中仍是虚函数。如果一个类中至少有一个纯虚函数，那么这个类被称为抽象类（abstract class）。<br>抽象类中不仅包括纯虚函数，也可包括虚函数。抽象类必须用作派生其他类的基类，而不能用于直接创建对象实例。但仍可使用指向抽象类的指针支持运行时多态性。<br><br>内存占用不同<br>
+结构体每个成员变量都拥有自己的内存，<br>
+联合：各个成员变量共用一块内存，同时只有一个成员可以这块内存的访问权限<br><br>
+<br>
+引用必须被初始化，指针不必。
+
+<br>
+引用初始化以后不能被改变，指针可以改变所指的对象。
+
+<br>
+不存在指向空值的引用，但是存在指向空值的指针。
+
+<br><br>面向对象程序设计（Object-oriented programming，OOP）是种具有对象概念的程序编程典范，同时也是一种程序开发的抽象方针。<br><img alt="面向对象特征" src="https://gitee.com/huihut/interview/raw/master/images/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E5%9F%BA%E6%9C%AC%E7%89%B9%E5%BE%81.png" referrerpolicy="no-referrer"><br>面向对象三大特征 —— 封装、继承、多态<br><br>把客观事物封装成抽象的类，并且类可以把自己的数据和方法只让可信的类或者对象操作，对不可信的进行信息隐藏。关键字：public, protected, private。不写默认为 private。<br>
+<br>public 成员：可以被任意实体访问<br>
+
+<br>protected 成员：只允许被子类及本类的成员函数访问<br>
+
+<br>private 成员：只允许被本类的成员函数、友元类或友元函数访问<br>
+
+<br><br>
+<br>基类（父类）——&gt; 派生类（子类）<br>
+
+<br><br>
+<br>多态，即多种状态（形态）。简单来说，我们可以将多态定义为消息以多种形式显示的能力。<br>
+
+<br>多态是以封装和继承为基础的。<br>
+
+<br>C++ 多态分类及实现：
+
+<br>重载多态（Ad-hoc Polymorphism，编译期）：函数重载、运算符重载
+<br>子类型多态（Subtype Polymorphism，运行期）：虚函数
+<br>参数多态性（Parametric Polymorphism，编译期）：类模板、函数模板
+<br>强制多态（Coercion Polymorphism，编译期/运行期）：基本类型转换、自定义类型转换
+
+
+<br><br><br><br><br><br>
+<br>
+shared_ptr<br>
+实现原理：采用引用计数器的方法，允许多个智能指针指向同一个对象，每当多一个指针指向该对象时，指向该对象的所有智能指针内部的引用计数加1，每当减少一个智能指针指向对象时，引用计数会减1，当计数为0的时候会自动的释放动态分配的资源。
+
+<br>
+unique_ptr<br>
+unique_ptr采用的是独享所有权语义，一个非空的unique_ptr总是拥有它所指向的资源。转移一个unique_ptr将会把所有权全部从源指针转移给目标指针，源指针被置空；所以unique_ptr不支持普通的拷贝和赋值操作，不能用在STL标准容器中；局部变量的返回值除外（因为编译器知道要返回的对象将要被销毁）；如果你拷贝一个unique_ptr，那么拷贝结束后，这两个unique_ptr都会指向相同的资源，造成在结束时对同一内存指针多次释放而导致程序崩溃。
+
+<br>
+weak_ptr<br>
+weak_ptr：弱引用。 引用计数有一个问题就是互相引用形成环（环形引用），这样两个指针指向的内存都无法释放。需要使用weak_ptr打破环形引用。weak_ptr是一个弱引用，它是为了配合shared_ptr而引入的一种智能指针，它指向一个由shared_ptr管理的对象而不影响所指对象的生命周期，也就是说，它只引用，不计数。如果一块内存被shared_ptr和weak_ptr同时引用，当所有shared_ptr析构了之后，不管还有没有weak_ptr引用该内存，内存也会被释放。所以weak_ptr不保证它指向的内存一定是有效的，在使用之前使用函数lock()检查weak_ptr是否为空指针。
+
+]]></description><link>笔记\c++-面试准备和理解.html</link><guid isPermaLink="false">笔记/C++ 面试准备和理解.md</guid><dc:creator><![CDATA[zhikai]]></dc:creator><pubDate>Wed, 06 Dec 2023 02:32:49 GMT</pubDate><enclosure url="https://gitee.com/huihut/interview/raw/master/images/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E5%9F%BA%E6%9C%AC%E7%89%B9%E5%BE%81.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://gitee.com/huihut/interview/raw/master/images/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E5%9F%BA%E6%9C%AC%E7%89%B9%E5%BE%81.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[c语言helloworld]]></title><description><![CDATA[ 
+ <br>#include&lt;stdio.h&gt;
+int main(){
+	printf("hello world!");
+	return 0;
+}
+复制]]></description><link>笔记\c语言helloworld.html</link><guid isPermaLink="false">笔记/c语言helloworld.md</guid><dc:creator><![CDATA[zhikai]]></dc:creator><pubDate>Thu, 14 Mar 2024 14:35:28 GMT</pubDate></item><item><title><![CDATA[字体调整策略]]></title><description><![CDATA[<a class="tag" href="?query=tag:字体" style="background-color: rgb(4, 108, 116); color: white; font-weight: 700; border: none; border-radius: 1em; padding: 0.2em 0.5em;">#字体</a> 
+ <br><a href=".?query=tag:字体" class="tag" target="_blank" rel="noopener">#字体</a><br><br>Fira_Code<br>
+<a rel="noopener" class="external-link" href="https://github.com/tonsky/FiraCode/releases" target="_blank">https://github.com/tonsky/FiraCode/releases</a><br><br>CascadiaCode<br>
+<a rel="noopener" class="external-link" href="https://github.com/microsoft/cascadia-code/releases" target="_blank">https://github.com/microsoft/cascadia-code/releases</a><br><br>JetBrainsMono<br>
+<a rel="noopener" class="external-link" href="https://github.com/JetBrains/JetBrainsMono/releases" target="_blank">https://github.com/JetBrains/JetBrainsMono/releases</a>]]></description><link>美化\字体调整策略.html</link><guid isPermaLink="false">美化/字体调整策略.md</guid><dc:creator><![CDATA[zhikai]]></dc:creator><pubDate>Thu, 14 Mar 2024 14:38:16 GMT</pubDate></item></channel></rss>
